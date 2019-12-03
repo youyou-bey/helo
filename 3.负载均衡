@@ -60,7 +60,7 @@ cat<<EOF> /usr/local/nginx/conf.d/vhost.conf
   
  server {
         listen       80;
-        server_name  localhost;
+        server_name  www.pr.com;
 
         location / {
           proxy_set_header  Host  $host;
