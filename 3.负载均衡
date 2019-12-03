@@ -74,8 +74,8 @@ EOF
 （2）建立地址池，权重模式  数字越大，权重越高
 cat<<EOF> /usr/local/nginx/conf.d/vhost.conf  
  upstream webserver {
-        server 192.168.123.12  weight2;
-        server 192.168.123.13  weight1;
+        server 192.168.123.12  weight=2;
+        server 192.168.123.13  weight=1;
     }
   
  server {
@@ -96,8 +96,8 @@ EOF
 cat<<EOF> /usr/local/nginx/conf.d/vhost.conf  
  upstream webserver {
         ip_hash;
-        server 192.168.123.12  weight=2;
-        server 192.168.123.13  weight=1;
+        server 192.168.123.12 ;
+        server 192.168.123.13 ;
     }
   
  server {
