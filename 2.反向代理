@@ -1,0 +1,62 @@
+也就是在一个项目环境中，企业营业服务器只有一台，要求上线公司官网及公网论坛两个网站程序；
+   请问解决方案及具体流程为？考虑到后期公司发展该网站如何应对用户突增的情况？
+准备环境：三台机器  一台官网服务器，一台论坛服务器，一台nginx反向代理服务器
+        都安装nginx服务
+安装过程，省略一万字
+  
+#1、官网服务器：
+
+cat<<EOF> /usr/local/nginx/conf.d/vhost.conf   
+ server {
+        listen       80;
+        server_name  localhost;
+
+        location / {
+            root   /opt/nginx/vhost/;
+            index  index.html;
+        }
+}
+EOF
+
+cat <<EOF>/opt/nginx/vhost/index.html
+guanwangwangye
+EOF
+
+
+#2、论坛服务器
+   
+cat<<EOF> /usr/local/nginx/conf.d/daili1.conf   
+ server {
+        listen       80;
+        server_name  localhost;
+
+        location / {
+            root   /opt/nginx/vhost/;
+            index  index.html;
+        }
+}
+EOF
+
+cat <<EOF>/opt/nginx/vhost/index.html
+luntanwangzhi
+EOF
+  
+#3、代理服务器
+cat<<EOF> /usr/local/nginx/conf.d/vhost.conf   
+ server {
+        listen       80;
+        server_name  localhost;
+
+        location / {
+          proxy_set_header  Host  $host;
+          proxy_set_header  X-Real-IP  $remote_addr;
+          proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+          proxy_pass    http://192.168.123.11;
+        }
+}
+EOF
+
+proxy_set_header  Host  $host;  
+ X-Real-IP  $remote_addr;   远端的地址
+X-Forwarded-For  $proxy_add_x_forwarded_for;  使其访问的时候  服务器上的地址是客户端ip，而不是代理服务器的地址
+http://192.168.123.11 要代理的地址
