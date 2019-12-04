@@ -1,0 +1,79 @@
+为了提高网站的响应速度，减轻程序服务器（Tomcat，Jboss等）的负载，对于静态资源比如图片，js，css等文件，
+我们可以在反向代理服务器中进行缓存，这样浏览器在请求一个静态资源时，代理服务器就可以直接处理，而不用将请求转发给后端服务器。
+用户请求的动态文件比如servlet,jsp则转发给Tomcat，Jboss服务器处理，这就是动静分离。这也是反向代理服务器的一个重要的作用
+
+
+- nginx的ngx_http_proxy_module中的proxy_cache指令来实现缓存的加载和命中;
+- nginx的ngx_http_proxy_module中的proxy_cache_path指令来定义缓存的存储位置及超时清理时限;
+通过使用ngx_http_gzip_module和ngx_http_gunzip_module两个模块来加速缓存的传输, 尤其是采用https协议时, 加速效果是很明显的;
+
+ngx_http_keyval_module模块
+
+
+cat<<EOF>/usr/local/nginx/conf/nginx.conf
+
+user  nginx;
+worker_processes  1;
+error_log  /opt/vhost/log/error.log;
+pid        logs/nginx.pid;
+events {
+    use epoll;
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                     '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /opt/vhost/log/access.log  main;
+
+    sendfile        on;
+    tcp_nopush     on;
+
+    keepalive_timeout  65;
+    include /usr/local/nginx/conf.d/*.conf;
+}
+EOF
+
+
+cat<<EOF> /usr/local/nginx/conf.d/vhost.conf  
+    upstream webserver {
+        server 192.168.123.12;
+        server 192.168.123.13;
+    }
+       
+    proxy_cache_path /var/cache/nginx/picture levels=1:1:2  keys_zone=picture:10m max_size=10g inactive=60m;  
+     #proxy_cache_path 代理缓存路径 picture：指的是缓存取余的名字 levels：分别指一级目录，二级目录 ，三级目录下要缓存的目录数  
+     10m：内存缓存空间为20m   10g：硬盘缓存空间大小200g    60m：缓存保存时间60秒
+
+    server {
+        listen       80;
+        server_name  www.daemons.com;
+        charset koi8-r;
+        access_log  logs/host.access.log  main;
+        error_log   logs/host.error.log;
+
+        location / {
+            proxy_set_header  Host  $host;
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+            proxy_pass    http://webserver;
+        }
+    
+        location ~ \.(gif|jpg|jpeg|png|bmp|ico)$ {
+            # ngx_http_header_module -->> add_header 添加响应头字段信息;
+            add_header X-Cache $upstream_cache_status;
+            proxy_cache picture;
+            proxy_cache_key $host$uri$is_args$args;#以全路径md5值做做为Key
+            proxy_cache_valid 200 304 12h; #对不同的HTTP状态码设置不同的缓存时间
+            expires 7d; #总体缓存时间
+            proxy_set_header Host  $host;
+            proxy_set_header X-Forwarded-For  $remote_addr;
+            proxy_pass http://webserver;
+        }00
+    }
+EOF
