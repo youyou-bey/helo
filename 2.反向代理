@@ -3,7 +3,9 @@
 准备环境：三台机器  一台官网服务器，一台论坛服务器，一台nginx反向代理服务器
         都安装nginx服务
 安装过程，省略一万字
-  
+
+反向代理的工作原理：
+
 #1、官网服务器：
 
 cat<<EOF> /usr/local/nginx/conf.d/vhost.conf   
