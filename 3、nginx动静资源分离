@@ -16,3 +16,34 @@
 
 实战：下方模拟访问网站首页, 通过超链接来访问login登录页面, 以及使用超链接访问静态资源页面实现主页中的动静分离操作, 
 根据请求的不同被显示的页面也会有所不同;
+location匹配规则:
+	- "=": 精准匹配,当匹配成功后不再继续向下匹配;
+  - "~/~*": 模糊匹配,当匹配成功后继续向下匹配更加精准的项,若无则返回该匹配;
+
+server {
+    listen      80;
+    server_name www.cloud1908.com;
+
+    access_log  logs/cloud1908com_access.log    main;
+    error_log   logs/cloud1908com_error.log;
+
+    location / {
+        root    html/cloud1908com;
+        index   index.html index.htm;
+    }
+
+  	# 分配静态资源到主目录中;
+    location ~ \.(jpeg|png|jpg|gif) {
+        root    html/cloud1908com;
+    }
+
+    # location后方所匹配的项, 就是去衡量或匹配URL中的字符;
+  	# 分配动态资源使用对应脚本执行;
+    location ~ \.php$ {
+        root           html/cloud1908com;
+        fastcgi_pass   127.0.0.1:9000;
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
+    }
+}
+
