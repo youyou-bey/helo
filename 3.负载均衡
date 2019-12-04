@@ -51,7 +51,7 @@ http {
 }
 EOF
 
-（1）建立地址池，默认轮询方法
+（1）建立地址池，默认轮询方法  按照地址池的地址顺讯轮询
 cat<<EOF> /usr/local/nginx/conf.d/vhost.conf  
  upstream webserver {
         server 192.168.123.12;
@@ -71,7 +71,7 @@ cat<<EOF> /usr/local/nginx/conf.d/vhost.conf
 }
 EOF
 
-（2）建立地址池，权重模式  数字越大，权重越高
+（2）建立地址池，权重模式  数字越大，权重越高  后端服务器性能越大  所定义的权重越大
 cat<<EOF> /usr/local/nginx/conf.d/vhost.conf  
  upstream webserver {
         server 192.168.123.12  weight=2;
@@ -91,7 +91,7 @@ cat<<EOF> /usr/local/nginx/conf.d/vhost.conf
 }
 EOF
 
-（3）ip_hash  ip哈希
+（3）ip_hash  ip哈希-----回话保持   是针对用户的
 如果客户已经访问了某个服务器,当用户再次访问时,会将该请求通过哈希算法,自动定位到该服务器;
 cat<<EOF> /usr/local/nginx/conf.d/vhost.conf  
  upstream webserver {
@@ -113,7 +113,7 @@ cat<<EOF> /usr/local/nginx/conf.d/vhost.conf
 }
 EOF
 
-4）url哈希
+4）url哈希  是根据url
 
  cat<<EOF> /usr/local/nginx/conf.d/vhost.conf  
  upstream webserver {
