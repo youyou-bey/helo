@@ -27,7 +27,7 @@ location匹配规则:
     }
 server {
     listen      80;
-    server_name www.cloud1908.com;
+    server_name www.cproxy.com;
 
     access_log  logs/cloud1908com_access.log    main;
     error_log   logs/cloud1908com_error.log;
