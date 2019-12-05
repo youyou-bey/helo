@@ -19,36 +19,79 @@
 location匹配规则:
 	- "=": 精准匹配,当匹配成功后不再继续向下匹配;
   - "~/~*": 模糊匹配,当匹配成功后继续向下匹配更加精准的项,若无则返回该匹配;
- upstream webserver {
-        server 192.168.123.12;
-    }
- upstream tomcat {
-        server 192.168.123.13;
-    }
-server {
-    listen      80;
-    server_name www.proxy.com;
 
-    access_log  logs/cloud1908com_access.log    main;
-    error_log   logs/cloud1908com_error.log;
 
-    location / {
-        root    html/cloud1908com;
-        index   index.html index.htm;
-    }
+实战：
+static服务器：
+安装nginx.....
+cat<<EOF>/usr/local/nginx/conf.d/vhost.conf 
+server{
+   listen 80;
+   server_name www.gw.com;
+   location / {
+            root   /opt/nginx/vhost;
+            index index.html;
 
-  	# 分配静态资源到主目录中;
-    location ~ \.(jpeg|png|jpg|gif) {
-        root    html/cloud1908com;
+        }
+   location ~ \.(jpeg|png|jpg|gif)$ {
+        root          /opt/nginx/vhost;
+        fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+        include        fastcgi_params;
     }
 
-    # location后方所匹配的项, 就是去衡量或匹配URL中的字符;
-  	# 分配动态资源使用对应脚本执行;
-    location ~ \.php$ {
-        root           html/cloud1908com;
+}
+active服务器
+安装nginx  或者安装tomcat
+cat<<EOF>/usr/local/nginx/conf.d/vhost.conf
+server{
+   listen 80;
+   server_name www.lt.com;
+location / {
+        root    /opt/nginx/vhost2;
+       index   index.html;
+    }
+location ~ \.php$ {
+        root          /opt/nginx/vhost2;
         fastcgi_pass   127.0.0.1:9000;
         fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
         include        fastcgi_params;
     }
 }
+EOF
+
+
+proxy服务器：
+ upstream tomcat_server {
+      server 192.168.254.140;
+}
+ upstream webserver {
+        server 192.168.254.128;
+}
+
+ server {
+        listen       80;
+        server_name  www.pr.com;
+      location / {
+         proxy_set_header  Host  $host;
+          proxy_set_header  X-Real-IP  $remote_addr;
+          proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+          proxy_pass    http://webserver;
+}
+       location ~ \.jpg$ {
+        proxy_set_header  Host  $host;
+          proxy_set_header  X-Real-IP  $remote_addr;
+          proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+          proxy_pass    http://webserver;
+}
+              location ~ \.php$ {
+        proxy_set_header  Host  $host;
+          proxy_set_header  X-Real-IP  $remote_addr;
+          proxy_set_header  X-Forwarded-For  $proxy_add_x_forwarded_for;
+          proxy_pass    http://tomcat_server;
+}
+
+
+
+
+
 
