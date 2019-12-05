@@ -19,7 +19,14 @@
 location匹配规则:
 	- "=": 精准匹配,当匹配成功后不再继续向下匹配;
   - "~/~*": 模糊匹配,当匹配成功后继续向下匹配更加精准的项,若无则返回该匹配;
-
+ upstream webserver {
+        server 192.168.123.12;
+        server 192.168.123.13;
+    }
+ upstream webserver {
+        server 192.168.123.12;
+        server 192.168.123.13;
+    }
 server {
     listen      80;
     server_name www.cloud1908.com;
