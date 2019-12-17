@@ -4,3 +4,54 @@
   yum -y install php php-xml php-fpm php-gd php-mysql php-gd php-mbstring php-mycry php-devel
 
 
+疑问点：
+      php和web怎么连接的？
+      php和数据库怎么连接的？
+      
+理解前因后果，帮助理解，仅此而已
+      
+在web上
+  vim 1.html 
+    <html>
+    <body>
+    <img src="logo.jpg" />
+
+    <form action="insert.php" method="post">   #关键点，web连接php的插头 
+    Firstname: <input type="text" name="firstname" />
+    Lastname: <input type="text" name="lastname" />
+    Age: <input type="text" name="age" />
+    <input type="submit" />
+    </form>
+
+    </body>
+    </html>
+    
+ vim insert.php 
+    <?php
+      $con = mysql_connect("192.168.100.10","root","123456");    #连接数据库
+      if (!$con)
+        {
+        die('Could not connect: ' . mysql_error());
+        }
+
+      mysql_select_db("my_db", $con);                   #选择数据
+      $sql="INSERT INTO Persons (FirstName, LastName, Age)   #插入数据表
+      VALUES
+      ('$_POST[firstname]','$_POST[lastname]','$_POST[age]')";  #在表中插入数值
+
+      if (!mysql_query($sql,$con))
+        {
+        die('Error: ' . mysql_error());
+        }
+      echo "1 record added";
+
+      mysql_close($con)
+      ?>
+    
+在数据库上
+   授权： grant all on *.* to root@'%' identified by '123456';
+   创建数据库
+   
+   
+   
+      
