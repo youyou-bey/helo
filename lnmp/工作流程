@@ -1,0 +1,6 @@
+安装nginx、mariadb、php
+  yum -y install nginx
+  yum -y install mariadb mariadb-server
+  yum -y install php php-xml php-fpm php-gd php-mysql php-gd php-mbstring php-mycry php-devel
+
+
