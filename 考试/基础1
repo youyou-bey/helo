@@ -1,0 +1,90 @@
+1.写出Nginx通过代理服务器，获取访问用户的ip的配置。
+location/{  
+  proxy_set_header Host $host;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Forworded-For $proxy_add_x_forworded_for;  #使访问时  服务器上的地址是客户端的ip  而不是代理服务器的
+  proxy_pass http://192.168.123.11
+}
+2.写出Nginx的一个简单虚拟主机，监控www.qianfeng.com的80端口，当匹配到/qianfeng时，跳转到后台10.10.7.163的8080端口
+yum： vim /etc/nginx/nginx.conf
+      cd /usr/share/nginx/html
+源码： vim /usr/local/nginx/conf/nginx.conf
+      cd /usr/local/nginx/html/
+ 
+vim /usr/local/nginx/conf/vhost.conf
+  
+      
+
+ 
+  
+3.列出常见的http状态码，并加以说明
+202：请求被正常处理
+302：临时重定向
+303：永久重定向
+400：客户端错误返回码，请求报文语法有误，服务器无法识别
+403：客户端错误返回码，请求的资源被禁止
+404：服务器找不到资源
+500：服务器内部错误
+503：服务器正忙
+
+4.简述GET和POST请求，并写出Nginx只允许GET和POST请求的配置。
+
+我对于get和post的叙述：
+  GET和POST是什么？HTTP协议中的两种发送请求的方法。
+  HTTP是什么？HTTP是基于TCP/IP的关于数据如何在万维网中如何通信的协议。HTTP的底层是TCP/IP。
+  
+  so，GET和POST的底层也是TCP/IP，也就是说，GET/POST都是TCP链接。GET和POST能做的事情是一样一样的。
+      给GET加上request body，给POST带上url参数
+  
+  but，由于HTTP的规定和浏览器/服务器的限制，导致他们在应用过程中体现出一些不同。
+ 
+  import： GET产生一个TCP数据包；POST产生两个TCP数据包。
+  get方式的请求，浏览器会把http header和data一并发送出去，服务器响应200（返回数据）
+  POST，浏览器先发送header，服务器响应100 continue，浏览器再发送data，服务器响应200 ok（返回数据）。
+  
+    server {
+        listen       80;
+        server_name  localhost;
+
+          if ($request_method !~* GET|POST) {
+            return 403;
+        }
+        location{
+        ................
+        }
+}  
+
+ curl -v http://39.105.131.140:8080/  显示一次HTTP请求的通信过程
+
+5.Nginx是如何处理一个请求的呢？
+  nginx根据访问链接域名的不同匹配到了相应的server服务器，然后再根据location路径，路由到对应的服务
+  当一个请求host名与任何一个server_name都不匹配时，那么这个请求会默认转向第一个server(这是nginx的标准默认行为)，
+  此外也可以显式地设置哪个服务器应该是默认的，并在listen指令中使用default_server参数
+
+6.如何开启Nginx压缩功能，并设置上传文件的格式和大小。
+  https://www.cnblogs.com/lpjnote/p/10785308.html
+  vim /usr/local/nginx/conf/nginx.conf
+   gzip on        #开启Gzip
+   gzip_types      #进行压缩的文件类型
+   gzip_min_length 1k    #启用gzip压缩的最小文件，小于设置值的文件将不会压缩
+   
+7.tomcat内存优化中，内存溢出的处理办法？
+
+8.如何修改Tomcat的默认端口和默认发布目录路径
+
+9.tomcat进程打开的所有文件
+
+10.写一个自动启动tomcat的脚本
+11. Tomcat服务的配置文件是哪个？后端Java，客户端访问慢，从哪几点考虑？
+12.如何优化linux操作系统
+13.你用过几种中间件/web应用服务器软件产品，各是什么？
+14.说明Nginx和Apacache作为web服务器的区别？
+15.列出Nginx的5条调优策略
+16.常用的HTTP方法有哪些？
+17.http和https的区别
+18.Nginx访问页面报错403,502如何解决，写出思路
+19.Nginx配置禁止访问/var/nginx目录
+20.为什么Nginx性能这么高？
+
+
+
