@@ -1,60 +1,57 @@
 1.写出Nginx通过代理服务器，获取访问用户的ip的配置。
-location/{  
-  proxy_set_header Host $host;
-  proxy_set_header X-Real-IP $remote_addr;
-  proxy_set_header X-Forworded-For $proxy_add_x_forworded_for;  #使访问时  服务器上的地址是客户端的ip  而不是代理服务器的
-  proxy_pass http://192.168.123.11
-}
+    location/{  
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forworded-For $proxy_add_x_forworded_for;  #使访问时  服务器上的地址是客户端的ip  而不是代理服务器的
+      proxy_pass http://192.168.123.11
+    }
 2.写出Nginx的一个简单虚拟主机，监控www.qianfeng.com的80端口，当匹配到/qianfeng时，跳转到后台10.10.7.163的8080端口
-yum： vim /etc/nginx/nginx.conf
-      cd /usr/share/nginx/html
-源码： vim /usr/local/nginx/conf/nginx.conf
-      cd /usr/local/nginx/html/
- 
-vim /usr/local/nginx/conf/vhost.conf
-  
-      
+    yum： vim /etc/nginx/nginx.conf
+          cd /usr/share/nginx/html
+    源码： vim /usr/local/nginx/conf/nginx.conf
+          cd /usr/local/nginx/html/
 
- 
+    vim /usr/local/nginx/conf/vhost.conf
+  
   
 3.列出常见的http状态码，并加以说明
-202：请求被正常处理
-302：临时重定向
-303：永久重定向
-400：客户端错误返回码，请求报文语法有误，服务器无法识别
-403：客户端错误返回码，请求的资源被禁止
-404：服务器找不到资源
-500：服务器内部错误
-503：服务器正忙
+    202：请求被正常处理
+    302：临时重定向
+    303：永久重定向
+    400：客户端错误返回码，请求报文语法有误，服务器无法识别
+    403：客户端错误返回码，请求的资源被禁止
+    404：服务器找不到资源
+    500：服务器内部错误
+    503：服务器正忙
 
 4.简述GET和POST请求，并写出Nginx只允许GET和POST请求的配置。
 
-我对于get和post的叙述：
-  GET和POST是什么？HTTP协议中的两种发送请求的方法。
-  HTTP是什么？HTTP是基于TCP/IP的关于数据如何在万维网中如何通信的协议。HTTP的底层是TCP/IP。
-  
-  so，GET和POST的底层也是TCP/IP，也就是说，GET/POST都是TCP链接。GET和POST能做的事情是一样一样的。
-      给GET加上request body，给POST带上url参数
-  
-  but，由于HTTP的规定和浏览器/服务器的限制，导致他们在应用过程中体现出一些不同。
- 
-  import： GET产生一个TCP数据包；POST产生两个TCP数据包。
-  get方式的请求，浏览器会把http header和data一并发送出去，服务器响应200（返回数据）
-  POST，浏览器先发送header，服务器响应100 continue，浏览器再发送data，服务器响应200 ok（返回数据）。
-  
-    server {
-        listen       80;
-        server_name  localhost;
+  我对于get和post的叙述：
+    GET和POST是什么？HTTP协议中的两种发送请求的方法。
+    HTTP是什么？HTTP是基于TCP/IP的关于数据如何在万维网中如何通信的协议。HTTP的底层是TCP/IP。
 
-          if ($request_method !~* GET|POST) {
-            return 403;
-        }
-        location{
-        ................
-        }
-}  
+    so，GET和POST的底层也是TCP/IP，也就是说，GET/POST都是TCP链接。GET和POST能做的事情是一样一样的。
+        给GET加上request body，给POST带上url参数
 
- curl -v http://39.105.131.140:8080/  显示一次HTTP请求的通信过程
+    but，由于HTTP的规定和浏览器/服务器的限制，导致他们在应用过程中体现出一些不同。
+
+    import： GET产生一个TCP数据包；POST产生两个TCP数据包。
+    get方式的请求，浏览器会把http header和data一并发送出去，服务器响应200（返回数据）
+    POST，浏览器先发送header，服务器响应100 continue，浏览器再发送data，服务器响应200 ok（返回数据）。
+
+      server {
+          listen       80;
+          server_name  localhost;
+
+            if ($request_method !~* GET|POST) {
+              return 403;
+          }
+          location{
+          ................
+          }
+  }  
+
+   curl -v http://39.105.131.140:8080/  显示一次HTTP请求的通信过程
 
 5.Nginx是如何处理一个请求的呢？
   nginx根据访问链接域名的不同匹配到了相应的server服务器，然后再根据location路径，路由到对应的服务
@@ -69,22 +66,97 @@ vim /usr/local/nginx/conf/vhost.conf
    gzip_min_length 1k    #启用gzip压缩的最小文件，小于设置值的文件将不会压缩
    
 7.tomcat内存优化中，内存溢出的处理办法？
+  在启动脚本中/usr/local/tomcat9/instance1/ins1.sh
+  export JAVA_OPTS='-Xms64m -Xmx128m'
+  -Xms:java Heap初始大小。默认是物理内存的1/64  初始化内存大小
+  -Xmx:java heap最大值。建议均设为物理内存的一半。不可以超过物理内存   可以使用的最大内存
+  -XX：MaxPermSize：设定内存的永久保存区初始大小。缺省值64
+  -server：一定要作为第一个参数，在多个CPU时性能佳
 
 8.如何修改Tomcat的默认端口和默认发布目录路径
+  /usr/local/tomcat9/conf/server.xml
+  	<Connector port="8081" protocol="HTTP/1.1"        #修改服务端口，默认8080
+	               connectionTimeout="20000"
+	               redirectPort="8443" />
+	
+   <Server port="8091" shutdown="SHUTDOWN">    #修改程序工作端口  默认8005
 
 9.tomcat进程打开的所有文件
-
+  
 10.写一个自动启动tomcat的脚本
+   	. /etc/init.d/functions      #加载系统中的常用函数
+	export CATALINA_BASE="/usr/local/tomcat/instance1"
+	
+	case "$1" in
+	start)
+	        $CATALINA_HOME/bin/startup.sh
+	        ;;
+	stop)
+	        $CATALINA_HOME/bin/shutdown.sh
+	        ;;
+	restart)
+	        $CATALINA_HOME/bin/shutdown.sh
+	        sleep 5
+	        $CATALINA_HOME/bin/startup.sh
+	        ;;
+  	esac
+  export JAVA_OPTS='-Xms64m -Xmx128m'
+
 11. Tomcat服务的配置文件是哪个？后端Java，客户端访问慢，从哪几点考虑？
+   /usr/local/tomcat9/conf/server.xml
+  
 12.如何优化linux操作系统
+    
 13.你用过几种中间件/web应用服务器软件产品，各是什么？
+   中间件：php-fpm  php-mysql  php-gd  php-cli
+   web应用服务器软件：tomcat、 Resin  JBOSS  WebSphere  Weblogic
+   
 14.说明Nginx和Apacache作为web服务器的区别？
+  nginx：静态处理能力较强，反向请求，高并发，邮件服务器
+        轻量级：nginx比apache 占用更少的内存及资源
+        抗并发：nginx 处理请求是异步非阻塞的，而apache 则是阻塞型的，在高并发下nginx 能保持低资源低消耗高性能 
+       
+  Apache：动态请求使用apache，rewrite比nginx大，模块多，基本用的
+        rewrite ，比nginx 的rewrite 强大 
+        模块超多，基本想到的都可以找到 
+        少bug ，nginx 的bug 相对较多 
+        超稳定
+  所以：选择web服务器 要根据自身情况选择
+  
 15.列出Nginx的5条调优策略
+
 16.常用的HTTP方法有哪些？
+
 17.http和https的区别
+http：
+https：
+
 18.Nginx访问页面报错403,502如何解决，写出思路
+  403错误：访问资源被禁止   查看网站主目录下有没有存放自己的文件  然后重启nginx服务
+  502错误： bade gateway 一般都是upstream出错，对于PHP，造成502的原因常见的就是脚本执行超过timeout设置时间，或者timeout设置过大，导致PHP进程长时间不能释放。
+            访问量增大，DB压力增大，作为提供接口的业务方，最近被下游反馈大量请求“502”
+    可以先适当增大php的执行时间，先保证清除502，
+  
+  
+  1.适当增大php脚本执行时间，通过修改php.ini或php-fpm.conf来配置
+    php.ini中 max_execution_time 
+    php-fpm中request_terminate_timeout
+    
+  2.从根本原因出发，定位php脚本， 查出真正导致php执行时间过长的原因（循环嵌套过多，数据库死锁）
+  3.高并发的话考虑php-fpm.conf中的max_children最大子进程数
+  4.是否启动php-fpm
+      
 19.Nginx配置禁止访问/var/nginx目录
+  location ^~ /var/nginx {
+    deny all;
+  }
+
 20.为什么Nginx性能这么高？
+  1、nginx本身就可以做负载均衡器， 既可以在内部直接支持 Rails 和 PHP 程序对外进行服务, 也可以支持作为 HTTP代理服务器对外进行服务.
+  2、支持高并发，能够支持高达 50,000 个并发连接数的响应
+  3、也可以作为邮件代理服务器
+  
+  
 
 
 
