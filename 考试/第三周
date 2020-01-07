@@ -1,0 +1,88 @@
+1.描述Lvs、Nginx负载均衡的五种调度算法。
+
+lvs的10种调度算法
+    静态算法：
+	rr （round robin）：轮询调度算法
+	qrr（weight）：权重调度算法
+	sh（source hashing）：源地址散列
+	dh（destination）：目标地址散列
+
+   动态调度算法：
+	LC（least   connection）最少连接
+	wlc（weight least ）：加权最少连接
+	sed(shortest expected)最短延迟调度
+	nq(nerver queue)永不排队,改进的sed
+	LBLC(locality based leastconnection)基于局部性的最少连接
+nginx的五种
+	rr轮询算法
+	wrr权重算法
+	ip_hash权重算法
+	url_hash
+	fair
+
+2.请简单阐述keepalived的故障切换工作原理
+	keepalived是以vrrp协议为实现基础，vrrp全程虚拟路由冗余协议
+	将n台对外提供相同功能的服务器组成一个服务器组，这个组里面有一个master和多个backup
+	master上面有一对外提供服务器的vip（该服务器所在的局域网内其他机器的默认路由为该vip）
+	master会发送组播，当backup接收不到vrrp包是，就认为master节点down掉了
+	这时就需要根据vrrp的优先级来选举一个backup当master
+
+3.ELK是什么,ELK的作用？
+	ELK：是一种日志分析系统，是一个基于浏览器页面的elasticsearch前端展示工，也是一个
+	        开源和免费的工具
+	ELK作用：
+	更加系统的查看日志信息
+	问题排查
+	监控和预警
+	关联事件
+	数据分析
+
+		
+4.ES与关系数据库数据存储结构对比？
+
+5.什么是kafka，为什么要使用 kafka 消息队列?
+	kafka是一种消息队列服务器，Kafka是一个分布式，可划分的，冗余备份的持久性的日志服务   主要针对于日志缓存
+	缓冲和削峰
+	解耦和扩展性
+	冗余
+	健壮性
+	异步通信
+
+6.kafka中的 zookeeper 起到什么作用，可以不用zookeeper么?
+    zookeeper 是一个分布式的协调组件
+    broker是分布式部署并且之间相互独立，所以使用zookeeper用来专门将broker管理起来
+    每个broker在启动时，搜会到zookeeper上进行注册，即到/broker/ids下创建术语自己的节点
+    不可以不用
+	
+7.kafka 为什么那么快?
+   数据的写入 和读入的方式：写入数据的时候由于单个Partion是末尾添加所以速度最优；读取数据的时候配合sendfile直接暴力输出。
+   kafka的特性是高吞吐率：解决了  kafaka的消息是保存或者缓存在磁盘上的，一般人为在磁盘上读写数据是会降低性能的，因为寻址比较耗时
+   它把所有的消息都变成一个批量的文件，并且进行合理的批量压缩，减少网络IO损耗，通过mmap提高I/O速度，
+     
+
+8.kafka producer如何优化写入速度？
+    增加线程
+    提高batch.size
+    增加更多producer实例
+    增加partition数量
+    设置scks=-1，如果延迟增大：可以增大 num.replica.fetchers（follower 同步数据的线程数）来调解；	
+     跨数据中心的传输：增加soket缓冲区设置以及OS tcp缓冲区设置
+
+9.RabbitMQ 的高可用性如何保证?
+      
+
+10.RabbitMQ如何保证不丢数据？
+    消息持久化 ：消息默认存放在内存上面，如果不特别声明设置，消息不会持久化保存到
+	1） Exchange 设置持久化
+	2）Queue 设置持久化
+	3）Message持久化发送：发送消息设置发送模式deliveryMode=2，代表持久化消息
+    ACK确认机制
+	是消费端消费完成要通知服务端，服务端才把消息从内存删除。
+                 这样就解决了，及时一个消费者出了问题，没有同步消息给服务端，还有其他的消费端去消费，保证了消息不丢的case。
+    设置集群镜像模式
+	采用HA 镜像模式队列
+    消息补偿机制
+     	产线网络环境太复杂，所以不知数太多，消息补偿机制需要建立在消息要写入DB日志，发送日志，接受日志，两者的状态必须记录。
+
+               然后根据DB日志记录check 消息发送消费是否成功，不成功，进行消息补偿措施，重新发送消息处理
+ 	
