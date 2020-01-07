@@ -3,16 +3,16 @@
 lvs的10种调度算法
     静态算法：
 	rr （round robin）：轮询调度算法
-	rr（weight）：权重调度算法
+	wrr（weight）：权重调度算法
 	sh（source hashing）：源地址散列
 	dh（destination）：目标地址散列
-
+  
    动态调度算法：
 	LC（least   connection）最少连接
 	wlc（weight least ）：加权最少连接
 	sed(shortest expected)最短延迟调度
 	nq(nerver queue)永不排队,改进的sed
-	LBLC(locality based leastconnection)基于局部性的最少连接
+
 nginx的五种
 	rr轮询算法
 	wrr权重算法
@@ -21,15 +21,16 @@ nginx的五种
 	fair
 
 2.请简单阐述keepalived的故障切换工作原理
-	keepalived是以vrrp协议为实现基础，vrrp全程虚拟路由冗余协议
+	keepalived是以vrrp协议为实现基础，vrrp称全程虚拟路由冗余协议
 	将n台对外提供相同功能的服务器组成一个服务器组，这个组里面有一个master和多个backup
 	master上面有一对外提供服务器的vip（该服务器所在的局域网内其他机器的默认路由为该vip）
-	master会发送组播，当backup接收不到vrrp包是，就认为master节点down掉了
+	master会发送组播，当backup接收不到vrrp包时，就认为master节点down掉了
 	这时就需要根据vrrp的优先级来选举一个backup当master
 
 3.ELK是什么,ELK的作用？
-	ELK：是一种日志分析系统，是一个基于浏览器页面的elasticsearch前端展示工，也是一个
-	        开源和免费的工具
+  概念：ELK是一种日志分析系统，其实并不是一款软件，而是一整套解决方案，是三个软件插排的首字母缩写
+  	
+	       
 	ELK作用：
 	更加系统的查看日志信息
 	问题排查
