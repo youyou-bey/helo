@@ -1,6 +1,6 @@
 1.描述Lvs、Nginx负载均衡的五种调度算法。
 
-lvs的10种调度算法
+lvs的8种调度算法
     静态算法：
 	rr （round robin）：轮询调度算法
 	wrr（weight）：权重调度算法
